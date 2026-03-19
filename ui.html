@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        padding: 16px;
+      }
+
+      button {
+        margin-right: 8px;
+        margin-bottom: 10px;
+        padding: 8px 14px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        background: #0055ff;
+        color: white;
+      }
+
+      textarea {
+        width: 100%;
+        height: 230px;
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        font-size: 13px;
+        font-family: monospace;
+      }
+
+      #copyBtn {
+        background: #00a862;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="allBtn">Coletar texto da página</button>
+    <button id="selBtn">Coletar texto dos frames selecionados</button>
+    <button id="copyBtn">Copiar texto</button>
+
+    <textarea
+      id="output"
+      placeholder="Os textos coletados aparecerão aqui..."
+    ></textarea>
+
+    <script>
+      const allBtn = document.getElementById('allBtn')
+      const selBtn = document.getElementById('selBtn')
+      const copyBtn = document.getElementById('copyBtn')
+      const output = document.getElementById('output')
+
+      // Pedir para o plugin coletar tudo
+      allBtn.onclick = () => {
+        parent.postMessage({ pluginMessage: { type: 'collect-all' } }, '*')
+      }
+
+      // Pedir para o plugin coletar da seleção
+      selBtn.onclick = () => {
+        parent.postMessage(
+          { pluginMessage: { type: 'collect-selection' } },
+          '*'
+        )
+      }
+
+      // Copiar texto do textarea
+      copyBtn.onclick = () => {
+        navigator.clipboard
+          .writeText(output.value)
+          .then(() => alert('Texto copiado!'))
+      }
+
+      // Receber texto do plugin
+      onmessage = (event) => {
+        const msg = event.data.pluginMessage
+        if (!msg) return
+
+        if (msg.type === 'show-text') {
+          output.value = msg.content
+        }
+      }
+    </script>
+  </body>
+</html>
